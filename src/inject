@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# find line number of MyString class declaration
+lineno=$(sed -n '/class SortedArrayList : public SortedList/=' SortedArrayList.h)
+
+# increment to next line
+lineno=$((lineno + 1))
+
+# insert code
+sed -i "$lineno a\
+\  friend struct test_1;\
+\n  friend struct test_2_3;\
+\n  friend struct test_4_5;\
+\n  friend struct test_6_7;\
+\n  friend struct test_8_10;\
+\n  friend struct test_11_13;\
+\n  friend struct test_14_15;\
+\n  friend struct test_16_17;\
+\n  friend struct test_18_19;\
+\n  friend struct test_20_22;\n" SortedArrayList.h
+
+# find line number of MyString class declaration
+lineno=$(sed -n '/class SortedLinkedList : public SortedList/=' SortedLinkedList.h)
+
+# increment to next line
+lineno=$((lineno + 1))
+
+# insert code
+sed -i "$lineno a\
+\  friend struct test_23;\
+\n  friend struct test_24_25;\
+\n  friend struct test_26_27;\
+\n  friend struct test_28_30;\
+\n  friend struct test_31_33;\
+\n  friend struct test_34_35;\
+\n  friend struct test_36_37;\
+\n  friend struct test_38_39;\
+\n  friend struct test_40_42;\n" SortedLinkedList.h

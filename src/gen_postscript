@@ -1,0 +1,10 @@
+#!/bin/bash
+STUDENTID=${PWD##/*/}
+TESTFILE=$1
+
+#cat stdout >> $TESTFILE
+#cat stderr >> $TESTFILE
+
+enscript -2 -C -Ecpp -G -j -r -b $STUDENTID -a1-2 --color --mark-wrapped-lines=arrow --page-label-format=long --ps-level=2 $TESTFILE -o $STUDENTID.ps
+#enscript -2 -C -Ecpp -G -j -r -v -b $STUDENTID -a -1 --color --mark-wrapped-lines=arrow --page-label-format=long --ps-level=2 'output' -o output.ps
+#enscript -2 -C -Ecpp -G -j -r -v -b $STUDENTID -a -1 --color --mark-wrapped-lines=arrow --page-label-format=long --ps-level=2 'error' -o error.ps

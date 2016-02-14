@@ -1,0 +1,11 @@
+#!/bin/bash
+
+PRINTER=$1
+
+if [ "$PRINTER" == "" ]; then
+  echo usage: printall printer_name
+else
+  cat roster | while read line; do
+    (cd submissions/$line/ && lpr $line.ps -P $PRINTER)
+  done
+fi

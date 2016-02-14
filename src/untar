@@ -1,0 +1,12 @@
+#!/bin/bash
+
+STUDENTID=${PWD##/*/}
+FILES="SortedList.h SortedList.cpp SortedArrayList.cpp SortedLinkedList.cpp"
+
+if [ -e *$STUDENTID*.gz ]; then
+  tar -xzf *$STUDENTID*.gz $FILES &> /dev/null
+elif [ -e *$STUDENTID*.tgz ]; then
+  tar -xzf *$STUDENTID*.tgz $FILES &> /dev/null
+elif [ -e *$STUDENTID*.zip ]; then
+  unzip -j -qq -u *$STUDENTID* $FILES
+fi

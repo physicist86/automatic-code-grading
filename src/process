@@ -1,0 +1,53 @@
+#!/bin/bash
+
+ASSN="CS_014_12Spr_Assignment_3"
+
+cat roster | while read line; do
+
+  # make student subdirectory
+  mkdir -p ./submissions/$line
+  
+  # extract student submission to student directory
+  unzip -j -qq -u iLearn *$line* -d ./submissions/$line
+ 
+  # copy grading files to student directory
+  cp main.cpp                ./submissions/$line/
+  cp Timer.h                 ./submissions/$line/
+  cp SortedArrayList.h       ./submissions/$line/
+  cp SortedLinkedList.h      ./submissions/$line/
+  cp SortedArrayListTests.h  ./submissions/$line/
+  cp SortedLinkedListTests.h ./submissions/$line/
+  cp random.txt              ./submissions/$line/
+  cp random_short.txt        ./submissions/$line/
+  cp sorted.txt              ./submissions/$line/
+  cp sorted_short.txt        ./submissions/$line/
+  cp untar                   ./submissions/$line/
+  cp inject                  ./submissions/$line/
+  cp Makefile                ./submissions/$line/
+  cp grade                   ./submissions/$line/
+  cp execute                 ./submissions/$line/
+   
+  # extract student's files from their submission tar
+  (cd submissions/$line/ && ./untar)
+  
+  # inject code into MyString.h so that our test code can have access to private members
+#  (cd submissions/$line/ && ./inject &> /dev/null)
+  
+  # compile code
+  (cd submissions/$line/ && g++ SortedList.cpp SortedArrayList.cpp SortedLinkedList.cpp main.cpp > compilation.txt 2>&1)
+  
+  # execute tests
+  (cd submissions/$line/ && ./grade $ASSN &> /dev/null)
+  (cd submissions/$line/ && echo ${PWD##/*/})
+  
+  # remove files
+  (cd submissions/$line/ && rm -f ./random.txt)
+  (cd submissions/$line/ && rm -f ./random_short.txt)
+  (cd submissions/$line/ && rm -f ./sorted.txt)
+  (cd submissions/$line/ && rm -f ./sorted_short.txt)
+  (cd submissions/$line/ && rm -f ./untar)
+  (cd submissions/$line/ && rm -f ./inject)
+  (cd submissions/$line/ && rm -f ./Makefile)
+  (cd submissions/$line/ && rm -f ./grade)
+  (cd submissions/$line/ && rm -f ./execute)
+done

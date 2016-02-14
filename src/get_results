@@ -1,0 +1,14 @@
+#!/bin/bash
+
+DIR=results
+
+mkdir -p -m 750 $DIR
+
+cat roster | while read line; do
+ 
+  (cd submissions/$line/ && cp $line.txt ../../$DIR )
+  #(cd ./$DIR             && ps2pdf $line.ps        )
+  (cd ./$DIR             && chmod g+r $line.txt    )
+  #rm ./$DIR/$line.ps
+
+done

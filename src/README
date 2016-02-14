@@ -1,0 +1,133 @@
+How to test the students' submissions
+-------------------------------------
+
+1. The file "iLearn.zip" must contain the students' files from iLearn
+2. The file "roster" must list the students' usernames
+3. Make sure that the variable ASSN in ./process is assigned the correct asignemnt number
+4. Type the command "./process" to run the tests
+5. The directory "submissions" will be created
+6. Within the "submissions" director, a directory for each student's username will contain the results
+7. The file "studentusername.ps" in each directory contains the report
+
+How it works
+------------
+
+1. PROCESS.SH
+   a) creates folder for each student
+   b) copies necessary files to each folder
+   c) extracts students files: (cd submissions/$line/ && ./UNTAR.SH)
+      STUDENTID=${PWD##/*/}
+      FILES="SortedList.h SortedList.cpp SortedArrayList.cpp SortedLinkedList.cpp"
+      if [ -e *$STUDENTID*.gz ]; then
+        tar -xzf *$STUDENTID*.gz $FILES &> /dev/null
+      elif [ -e *$STUDENTID*.tgz ]; then
+        tar -xzf *$STUDENTID*.tgz $FILES &> /dev/null
+      elif [ -e *$STUDENTID*.zip ]; then
+       unzip -j -qq -u *$STUDENTID* $FILES
+      fi
+   d) calls INJECT.SH, which injects code (friend my classes) in their classes
+      # find line number of MyString class declaration
+      lineno=$(sed -n '/class SortedArrayList : public SortedList/=' SortedArrayList.h)
+      # increment to next line
+      lineno=$((lineno + 1))
+      # insert code
+      sed -i "$lineno a\
+      \  friend struct test_1;\
+      \n  friend struct test_2_3;\
+      \n  friend struct test_20_22;\n" SortedArrayList.h
+   d) calls Makefile to compile their code
+   e) calls GRADE.SH to execute tests
+      1) creates report of tests
+      2) calls EXECUTE.SH, which calls my C++ test harness (passing the test to execute) in background
+	     (./execute $PROGRAM ${TEST_N[i]} $STDOUT $STDERR $STATUS &> /dev/null) &
+         a) specific test is executed: $PRGRAM $PARMTR >> $STDOUT 2>> $STDERR
+		 b) the C++ test harness writes to file the score of test
+         b) exit status written to file: echo $? > $STATUS
+		 struct test_1
+		 {
+		   bool operator()()
+		   {
+		     SortedArrayList list;
+			 if(list.size != 0) return false;
+			 if(list.capacity != CAPACITY) return false;
+			 for(size_t i = 0; i != CAPACITY; ++i) if(list.buf[i] != "") return false;
+			 return true;
+		   }
+		 } default_constructor_test;
+		 
+		 struct test_2_3
+		 {
+		   bool operator()(size_t capacity)
+		   {
+		     SortedArrayList list(capacity);
+			 if(list.size != 0) return false;
+			 if(list.capacity != capacity) return false;
+			 for(size_t i = 0; i != capacity; ++i) if(list.buf[i] != "") return false;
+			 return true;
+		   }
+		 } single_parameter_constructor_test;
+
+		struct test_4_5
+		{
+		  bool operator()(int test)
+		  {
+		    if(test == 4)
+			{
+		      SortedArrayList list;
+			  list.buf = NULL;
+			  list.capacity = 0;
+			  list.size = 0;
+		      SortedArrayList copy(list);
+			  if(copy.size != list.size) return false;
+			  if(copy.capacity != list.capacity) return false;
+			  if(copy.buf != NULL) return false;
+			}
+			else if(test == 5)
+			{
+			  SortedArrayList list;
+			  list.buf = new string[5];
+			  list.buf[0] = "test";
+			  list.capacity = 5;
+			  list.size = 1;
+			  SortedArrayList copy(list);
+			  if(copy.size != list.size) return false;
+			  if(copy.capacity != list.capacity) return false;
+			  if(copy.buf[0] != "test") return false;
+			  for(size_t i = 1; i != 5; ++i) if(copy.buf[i] != "") return false;
+			}
+			else exit(1);
+			return true;
+		   }
+		 } copy_constructor_test;
+      3) catches exit status from my C++ test harness
+      4) checks for program crash, infinite loops, test pass/fail
+         a) if [ "${TEST_N[i]}" == "20" ]; then TIMEOUT=200s; fi sleep $TIMEOUT
+         b) get the process PID: pid=$(ps -o pid,args -u $USER | grep $PROGRAM | grep -v grep | cut -c1-6)
+         c) if process id, then infinite loop or program is taking too long; kill process
+         d) read result file that has points for test from C++ test harness, as "read val < result.txt"
+            if [ "$pid" != "" ]; then
+              echo "Program timed out."                                                     >> $OUTPUTFILE
+              kill $pid > /dev/null 2> /dev/null
+            else
+              # read result file created by the test program a.out
+             read val < result.txt
+             rm -f result.txt
+             # if test program did not output to output file, then it crashed or seg faulted
+             if [ "$val" == "" ]; then
+               read status < status.txt
+               if [ "$status" == "139" ]; then
+                 echo "Segmentation faul"                                                   >> $OUTPUTFILE
+               else
+                 echo "Test error."                                                         >> $OUTPUTFILE
+               fi
+            # if test program returned 0 points, then the test failed
+            elif [ "$val" == "0" ]; then
+              echo fail                                                                     >> $OUTPUTFILE
+            # check that we are running the right test
+            elif [ "$val" == "${TEST_N[i]}" ]; then
+              echo pass                                                                     >> $OUTPUTFILE
+              score=$((score+${POINTS[$i]}))
+           else
+             echo Test Error                                                                >> $OUTPUTFILE
+           fi
+         fi

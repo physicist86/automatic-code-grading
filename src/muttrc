@@ -1,0 +1,6 @@
+set spoolfile={imap.cs.ucr.edu/ssl/novalidate-cert}inbox
+set certificate_file="~/.cert"
+set hostname="cs.ucr.edu"
+set from="akoeh001@cs.ucr.edu"
+set realname="Adam Koehler"
+set editor=vim
