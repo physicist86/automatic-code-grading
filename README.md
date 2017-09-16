@@ -30,7 +30,7 @@ $ bin/automatic-code-grading
 License
 ----
 
-[//]: # (A short snippet describing the license (MIT, Apache, etc.))
+[//]: # "A short snippet describing the license (MIT, Apache, etc.)"
 
 [//]: # (http://choosealicense.com/)
 
